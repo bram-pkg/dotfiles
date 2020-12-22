@@ -5,7 +5,8 @@
 # i3 config file (v4)
 #
 # Please see https://i3wm.org/docs/userguide.html for a complete reference!
-gaps inner 16
+smart_gaps on
+gaps inner 8
 for_window [class=".*"] border pixel 0
 
 set $mod Mod1

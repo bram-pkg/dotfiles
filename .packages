@@ -1,4 +1,5 @@
 alacritty
+antibody-bin
 dmenu
 efibootmgr
 i3-gaps
@@ -12,10 +13,20 @@ nano
 neovim
 vi
 vim
+openssh
 noto-fonts
 noto-fonts-cjk
 noto-fonts-emoji
 ttf-jetbrains-mono
+ttf-cascadia-code
+ttf-ubuntu-font-family
+ttf-roboto
+ttf-roboto-mono
+ttf-meslo
+nerd-fonts-droid-sans-mono
+nerd-fonts-cascadia-code
+adobe-source-code-pro-fonts
 xclip
 xorg-server
 xorg-xinit
+zsh
