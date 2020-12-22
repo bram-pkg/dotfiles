@@ -1,0 +1,30 @@
+#!/bin/bash
+
+system_type=$(uname -s)
+
+cd $HOME
+
+function install_arch() {
+	MIRRORLIST="https://www.archlinux.org/mirrorlist/?country=NL&country=DE&protocol=http&protocol=https"
+	sudo curl -o /etc/pacman.d/mirrorlist "$MIRRORLIST"
+	sudo sed -i 's/#Server/Server/g' /etc/pacman.d/mirrorlist && pacman -Syu --noconfirm
+	sudo sed -i 's/#Color/Color/g' /etc/pacman.conf
+
+	if ! command -v yay > /dev/null 2>&1; then
+		echo "Install yay..."
+		rm -rf /tmp/yay && \
+		  git clone --depth 1 https://aur.archlinux.org/yay-bin.git /tmp/yay && \
+		  cd /tmp/yay && \
+		  makepkg -si --noconfirm
+	fi
+
+	echo "Installing packages from .packages"
+	yay -S --needed --noconfirm - < $HOME/.packages
+}
+
+case "$system_type" in
+	"Linux")
+		install_arch;;
+	*)
+		echo "Cannot detect the system...";;
+esac
