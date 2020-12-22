@@ -2,12 +2,13 @@
 
 system_type=$(uname -s)
 
-cd $HOME
+cd "$HOME"
+yadm submodule update --recursive --init
 
 function install_arch() {
-	MIRRORLIST="https://www.archlinux.org/mirrorlist/?country=NL&country=DE&protocol=http&protocol=https"
+	MIRRORLIST="https://archlinux.org/mirrorlist/?country=NL&country=DE&protocol=http&protocol=https&ip_version=4&ip_version=6"
 	sudo curl -o /etc/pacman.d/mirrorlist "$MIRRORLIST"
-	sudo sed -i 's/#Server/Server/g' /etc/pacman.d/mirrorlist && pacman -Syu --noconfirm
+	sudo sed -i 's/#Server/Server/g' /etc/pacman.d/mirrorlist && sudo pacman -Syu --noconfirm
 	sudo sed -i 's/#Color/Color/g' /etc/pacman.conf
 
 	if ! command -v yay > /dev/null 2>&1; then
