@@ -6,7 +6,7 @@ cd "$HOME"
 yadm submodule update --recursive --init
 
 function install_arch() {
-	MIRRORLIST="https://archlinux.org/mirrorlist/?country=NL&country=DE&protocol=http&protocol=https&ip_version=4&ip_version=6"
+	MIRRORLIST='https://archlinux.org/mirrorlist/?country=NL&country=DE&protocol=http&protocol=https&ip_version=4&ip_version=6'
 	sudo curl -o /etc/pacman.d/mirrorlist "$MIRRORLIST"
 	sudo sed -i 's/#Server/Server/g' /etc/pacman.d/mirrorlist && sudo pacman -Syu --noconfirm
 	sudo sed -i 's/#Color/Color/g' /etc/pacman.conf
@@ -21,6 +21,30 @@ function install_arch() {
 
 	echo "Installing packages from .packages"
 	yay -S --needed --noconfirm --removemake - < $HOME/.packages
+	# configure basic firewall
+	sudo sed -i 's/IPV6=yes/IPV6=no/' /etc/default/ufw
+	sudo ufw default deny
+	sudo ufw limit ssh
+	sudo ufw enable
+	sudo systemctl enable ufw
+	# enable profile sync daemon
+	systemctl --user enable psd.service
+	# enable gdm and network manager
+	sudo systemctl enable gdm
+	sudo systemctl enable NetworkManager
+	# gnome dconf settings
+	gsettings set org.gnome.desktop.peripherals.mouse accel-profile 'flat'
+	gsettings set org.gnome.desktop.peripherals.touchpad tap-to-click true
+	gsettings set org.gnome.desktop.calendar show-weekdate true
+	gsettings set org.gnome.desktop.interface clock-show-date true
+	gsettings set org.gnome.shell.overrides dynamic-workspaces false
+	gsettings set org.gnome.desktop.wm.preferences num-workspaces "1"
+	gsettings set org.gtk.Settings.FileChooser sort-directories-first true
+	gsettings set org.gnome.nautilus.preferences default-folder-viewer 'list-view'
+	gsettings set org.gnome.nautilus.list-view default-zoom-level 'small'
+	gsettings set org.gnome.shell enabled-extensions "['user-theme@gnome-shell-extensions.gcampax.github.com']"
+	gsettings set org.gnome.shell.extensions.user-theme name 'Arc-Dark'
+	gsettings set org.gnome.desktop.interface gtk-theme 'Arc-Dark'
 }
 
 case "$system_type" in
