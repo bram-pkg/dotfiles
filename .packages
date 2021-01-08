@@ -2,12 +2,11 @@ man-db
 man-pages
 alacritty
 antibody-bin
-dmenu
+visual-studio-code-bin
 efibootmgr
 google-chrome
 firefox
-i3-gaps
-i3status
+gnome
 jq
 glow-bin
 micro-bin
@@ -15,7 +14,6 @@ linux
 linux-firmware
 nano
 neovim
-vi
 vim
 openssh
 noto-fonts
@@ -31,6 +29,5 @@ nerd-fonts-droid-sans-mono
 nerd-fonts-cascadia-code
 adobe-source-code-pro-fonts
 xclip
-xorg-server
-xorg-xinit
+xorg-xkill
 zsh
