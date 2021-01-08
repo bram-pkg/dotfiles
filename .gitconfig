@@ -3,3 +3,6 @@
 	email = bramceulemans@me.com
 [pull]
 	rebase = false
+[alias]
+	s = status
+	c = commit
