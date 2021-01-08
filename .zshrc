@@ -17,5 +17,7 @@ antibody bundle zsh-users/zsh-syntax-highlighting
 antibody bundle zsh-users/zsh-autosuggestions
 antibody bundle zsh-users/zsh-history-substring-search
 
+antibody bundle TheLocehiliosan/yadm fpath:zsh/_yadm
+
 alias zshr="source $HOME/.zshrc"
 alias gits="git status"
