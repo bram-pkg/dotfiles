@@ -1,0 +1,24 @@
+{
+    "window.zoomLevel": 0.0,
+    "git.enableSmartCommit": true,
+    "git.autofetch": true,
+    "editor.fontFamily": "CaskaydiaCove NF",
+    "editor.quickSuggestions": true,
+    "editor.suggestSelection": "recentlyUsed",
+    "editor.smoothScrolling": true,
+    "editor.minimap.enabled": false,
+    "editor.cursorSurroundingLines": 4,
+    "workbench.list.smoothScrolling": true,
+    "terminal.integrated.shell.windows": "${env:USERPROFILE}\\scoop\\apps\\pwsh\\current\\pwsh.exe",
+    "terminal.integrated.shellArgs.windows": ["/nologo"],
+    "terminal.integrated.fontFamily": "CaskaydiaCove NF",
+    "terminal.integrated.cursorStyle": "underline",
+    "terminal.integrated.enableBell": false,
+    "files.exclude": {
+        "**/.classpath": true,
+        "**/.project": true,
+        "**/.settings": true,
+        "**/.factorypath": true
+    },
+    "powershell.integratedConsole.showOnStartup": false
+}
