@@ -11,6 +11,7 @@ function install_arch() {
 	sudo sed -i 's/#Server/Server/g' /etc/pacman.d/mirrorlist && sudo pacman -Syu --noconfirm
 	sudo sed -i 's/#Color/Color/g' /etc/pacman.conf
 
+	# install yay if missing
 	if ! command -v yay > /dev/null 2>&1; then
 		echo "Install yay..."
 		rm -rf /tmp/yay && \
@@ -19,23 +20,29 @@ function install_arch() {
 		  makepkg -si --noconfirm
 	fi
 
+	# install packages from .packages file
 	echo "Installing packages from .packages"
 	yay -S --needed --noconfirm --removemake - < $HOME/.packages
+
 	# configure basic firewall
 	sudo sed -i 's/IPV6=yes/IPV6=no/' /etc/default/ufw
 	sudo ufw default deny
 	sudo ufw limit ssh
 	sudo ufw enable
 	sudo systemctl enable ufw
+
 	# enable profile sync daemon
 	systemctl --user enable psd.service
+
 	# enable gdm and network manager
 	sudo systemctl enable gdm
 	sudo systemctl enable NetworkManager
+
 	# gnome dconf settings
 	gsettings set org.gnome.desktop.peripherals.mouse accel-profile 'flat'
 	gsettings set org.gnome.desktop.peripherals.touchpad tap-to-click true
 	gsettings set org.gnome.desktop.calendar show-weekdate true
+	gsettings set org.gnome.desktop.wm.preferences button-layout "appmenu:minimize,maximize,close"
 	gsettings set org.gnome.desktop.interface clock-show-date true
 	gsettings set org.gnome.shell.overrides dynamic-workspaces false
 	gsettings set org.gnome.desktop.wm.preferences num-workspaces "1"
@@ -45,6 +52,12 @@ function install_arch() {
 	gsettings set org.gnome.shell enabled-extensions "['user-theme@gnome-shell-extensions.gcampax.github.com']"
 	gsettings set org.gnome.shell.extensions.user-theme name 'Arc-Dark'
 	gsettings set org.gnome.desktop.interface gtk-theme 'Arc-Dark'
+
+	# install gnome hidetopbar extension
+	mkdir -p "$HOME/.local/share/gnome-shell/extensions" && cd $_
+	git clone https://github.com/mlutfy/hidetopbar.git hidetopbar@mathieu.bidon.ca && cd $_
+	make
+	gnome-extensions enable hidetopbar@mathieu.bidon.ca
 }
 
 case "$system_type" in
