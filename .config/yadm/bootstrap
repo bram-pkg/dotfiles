@@ -20,7 +20,7 @@ function install_arch() {
 	fi
 
 	echo "Installing packages from .packages"
-	yay -S --needed --noconfirm - < $HOME/.packages
+	yay -S --needed --noconfirm --removemake - < $HOME/.packages
 }
 
 case "$system_type" in

@@ -19,6 +19,5 @@
         "**/.project": true,
         "**/.settings": true,
         "**/.factorypath": true
-    },
-    "powershell.integratedConsole.showOnStartup": false
+    }
 }
