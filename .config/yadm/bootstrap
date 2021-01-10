@@ -5,9 +5,27 @@ system_type=$(uname -s)
 cd "$HOME"
 yadm submodule update --recursive --init
 
-function install_arch() {
+function update_mirrorlist() {
 	MIRRORLIST='https://archlinux.org/mirrorlist/?country=NL&country=DE&protocol=http&protocol=https&ip_version=4&ip_version=6'
 	sudo curl -o /etc/pacman.d/mirrorlist "$MIRRORLIST"
+}
+
+function install_packages() {
+	echo "Installing packages from .packages"
+	yay -S --needed --noconfirm --removemake - < $HOME/.packages
+}
+
+function install_arch() {
+	echo "Requesting sudo password..."
+	sudo -v
+	
+	read -p "Update mirrorlist? [Y/n]" choice
+	case $choice in
+		[Yy]* ) update_mirrorlist;;
+		[Nn]* ) ;;
+		*) ;;
+	esac
+
 	sudo sed -i 's/#Server/Server/g' /etc/pacman.d/mirrorlist && sudo pacman -Syu --noconfirm
 	sudo sed -i 's/#Color/Color/g' /etc/pacman.conf
 
@@ -21,8 +39,12 @@ function install_arch() {
 	fi
 
 	# install packages from .packages file
-	echo "Installing packages from .packages"
-	yay -S --needed --noconfirm --removemake - < $HOME/.packages
+	read -p "Install packages? [Y/n]" choice
+	case $choice in
+		[Yn]* ) install_packages;;
+		[Nn]* ) ;;
+		*) ;;
+	esac
 
 	# configure basic firewall
 	sudo sed -i 's/IPV6=yes/IPV6=no/' /etc/default/ufw
@@ -30,6 +52,10 @@ function install_arch() {
 	sudo ufw limit ssh
 	sudo ufw enable
 	sudo systemctl enable ufw
+
+	# configure mdns
+	sudo systemctl enable avahi-daemon
+	sudo sed -i -e 's/^\(hosts:.*\)\(resolve.*\)$/\1mdns4_minimal [NOTFOUND=return] \2/' /etc/nsswitch.conf
 
 	# enable profile sync daemon
 	systemctl --user enable psd.service
@@ -54,10 +80,23 @@ function install_arch() {
 	gsettings set org.gnome.desktop.interface gtk-theme 'Arc-Dark'
 
 	# install gnome hidetopbar extension
-	mkdir -p "$HOME/.local/share/gnome-shell/extensions" && cd $_
-	git clone https://github.com/mlutfy/hidetopbar.git hidetopbar@mathieu.bidon.ca && cd $_
+	EXT_DIR="$HOME/.local/share/gnome-shell/extensions"
+	HTB_DIR="hidetopbar@mathieu.bidon.ca"
+
+	## if the extension directory doesn't exist, make it
+	if [[ ! -d "${EXT_DIR}" ]]; then
+		mkdir -p "${EXT_DIR}"
+	fi
+
+	cd "${EXT_DIR}"
+	
+	if [[ ! -d "${EXT_DIR}/${HTB_DIR}" ]]; then
+		git clone https://github.com/mlutfy/hidetopbar.git "${HTB_DIR}"
+	fi
+
+	cd "${EXT_DIR}/${HTB_DIR}"
 	make
-	gnome-extensions enable hidetopbar@mathieu.bidon.ca
+	gnome-extensions enable "${HTB_DIR}"
 }
 
 case "$system_type" in
