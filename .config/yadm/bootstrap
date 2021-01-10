@@ -6,12 +6,14 @@ cd "$HOME"
 yadm submodule update --recursive --init
 
 function update_mirrorlist() {
+	echo "Updating mirrorlist..."
 	MIRRORLIST='https://archlinux.org/mirrorlist/?country=NL&country=DE&protocol=http&protocol=https&ip_version=4&ip_version=6'
 	sudo curl -o /etc/pacman.d/mirrorlist "$MIRRORLIST"
+	sudo sed -i 's/#Server/Server/g' /etc/pacman.d/mirrorlist && sudo pacman -Syu --noconfirm
 }
 
 function install_packages() {
-	echo "Installing packages from .packages"
+	echo "Installing packages..."
 	yay -S --needed --noconfirm --removemake - < $HOME/.packages
 }
 
@@ -19,14 +21,11 @@ function install_arch() {
 	echo "Requesting sudo password..."
 	sudo -v
 	
-	read -p "Update mirrorlist? [Y/n]" choice
-	case $choice in
-		[Yy]* ) update_mirrorlist;;
-		[Nn]* ) ;;
-		*) ;;
-	esac
+	read -r -p "Update mirrorlist? [y/N]" mirrorlist_choice
+	if [[ "$mirrorlist_choice" =~ [Yy] ]]; then
+		update_mirrorlist
+	fi
 
-	sudo sed -i 's/#Server/Server/g' /etc/pacman.d/mirrorlist && sudo pacman -Syu --noconfirm
 	sudo sed -i 's/#Color/Color/g' /etc/pacman.conf
 
 	# install yay if missing
@@ -39,12 +38,10 @@ function install_arch() {
 	fi
 
 	# install packages from .packages file
-	read -p "Install packages? [Y/n]" choice
-	case $choice in
-		[Yn]* ) install_packages;;
-		[Nn]* ) ;;
-		*) ;;
-	esac
+	read -r -p "Install packages? [y/N]" packages_choice
+	if [[ "$packages_choice" =~ [Yy] ]]; then
+		install_packages
+	fi
 
 	# configure basic firewall
 	sudo sed -i 's/IPV6=yes/IPV6=no/' /etc/default/ufw
@@ -55,7 +52,10 @@ function install_arch() {
 
 	# configure mdns
 	sudo systemctl enable avahi-daemon
-	sudo sed -i -e 's/^\(hosts:.*\)\(resolve.*\)$/\1mdns4_minimal [NOTFOUND=return] \2/' /etc/nsswitch.conf
+	MDNS=$(grep -o '^hosts:.*mdns' /etc/nsswitch.conf)
+	if [[ -z "${MDNS}" ]]; then
+		sudo sed -i -e 's/^\(hosts:.*\)\(resolve.*\)$/\1mdns4_minimal [NOTFOUND=return] \2/' /etc/nsswitch.conf
+	fi
 
 	# enable profile sync daemon
 	systemctl --user enable psd.service
@@ -68,19 +68,24 @@ function install_arch() {
 	gsettings set org.gnome.desktop.peripherals.mouse accel-profile 'flat'
 	gsettings set org.gnome.desktop.peripherals.touchpad tap-to-click true
 	gsettings set org.gnome.desktop.calendar show-weekdate true
-	gsettings set org.gnome.desktop.wm.preferences button-layout "appmenu:minimize,maximize,close"
+	gsettings set org.gnome.desktop.wm.preferences button-layout 'appmenu:minimize,maximize,close'
 	gsettings set org.gnome.desktop.interface clock-show-date true
+	gsettings set org.gnome.desktop.interface enable-animations false
 	gsettings set org.gnome.shell.overrides dynamic-workspaces false
-	gsettings set org.gnome.desktop.wm.preferences num-workspaces "1"
+	gsettings set org.gnome.desktop.wm.preferences num-workspaces '1'
 	gsettings set org.gtk.Settings.FileChooser sort-directories-first true
 	gsettings set org.gnome.nautilus.preferences default-folder-viewer 'list-view'
 	gsettings set org.gnome.nautilus.list-view default-zoom-level 'small'
 	gsettings set org.gnome.shell enabled-extensions "['user-theme@gnome-shell-extensions.gcampax.github.com']"
 	gsettings set org.gnome.shell.extensions.user-theme name 'Arc-Dark'
 	gsettings set org.gnome.desktop.interface gtk-theme 'Arc-Dark'
-
+	gsettings set org.gnome.settings-daemon.plugins.media-keys custom-keybindings "['/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom0/']"
+	gsettings set org.gnome.settings-daemon.plugins.media-keys.custom-keybinding:/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom0/ name "'Open Terminal'"
+	gsettings set org.gnome.settings-daemon.plugins.media-keys.custom-keybinding:/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom0/ binding "'<Ctrl><Alt>T'"
+	gsettings set org.gnome.settings-daemon.plugins.media-keys.custom-keybinding:/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom0/ command "'gnome-terminal'"
+	
 	# install gnome hidetopbar extension
-	EXT_DIR="$HOME/.local/share/gnome-shell/extensions"
+	EXT_DIR="${HOME}/.local/share/gnome-shell/extensions"
 	HTB_DIR="hidetopbar@mathieu.bidon.ca"
 
 	## if the extension directory doesn't exist, make it
