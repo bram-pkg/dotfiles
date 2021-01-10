@@ -2,7 +2,7 @@
 
 system_type=$(uname -s)
 
-cd "$HOME"
+cd "$HOME" || return
 yadm submodule update --recursive --init
 
 function update_mirrorlist() {
@@ -14,13 +14,13 @@ function update_mirrorlist() {
 
 function install_packages() {
 	echo "Installing packages..."
-	yay -S --needed --noconfirm --removemake - < $HOME/.packages
+	yay -S --needed --noconfirm --removemake - < "${HOME}/.packages"
 }
 
 function install_arch() {
 	echo "Requesting sudo password..."
 	sudo -v
-	
+
 	read -r -p "Update mirrorlist? [y/N]" mirrorlist_choice
 	if [[ "$mirrorlist_choice" =~ [Yy] ]]; then
 		update_mirrorlist
@@ -76,14 +76,14 @@ function install_arch() {
 	gsettings set org.gtk.Settings.FileChooser sort-directories-first true
 	gsettings set org.gnome.nautilus.preferences default-folder-viewer 'list-view'
 	gsettings set org.gnome.nautilus.list-view default-zoom-level 'small'
-	gsettings set org.gnome.shell enabled-extensions "['user-theme@gnome-shell-extensions.gcampax.github.com']"
 	gsettings set org.gnome.shell.extensions.user-theme name 'Arc-Dark'
 	gsettings set org.gnome.desktop.interface gtk-theme 'Arc-Dark'
 	gsettings set org.gnome.settings-daemon.plugins.media-keys custom-keybindings "['/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom0/']"
 	gsettings set org.gnome.settings-daemon.plugins.media-keys.custom-keybinding:/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom0/ name "'Open Terminal'"
 	gsettings set org.gnome.settings-daemon.plugins.media-keys.custom-keybinding:/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom0/ binding "'<Ctrl><Alt>T'"
 	gsettings set org.gnome.settings-daemon.plugins.media-keys.custom-keybinding:/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom0/ command "'gnome-terminal'"
-	
+	gnome-extensions enable "user-theme@gnome-shell-extensions.gcampax.github.com"
+
 	# install gnome hidetopbar extension
 	EXT_DIR="${HOME}/.local/share/gnome-shell/extensions"
 	HTB_DIR="hidetopbar@mathieu.bidon.ca"
@@ -93,13 +93,13 @@ function install_arch() {
 		mkdir -p "${EXT_DIR}"
 	fi
 
-	cd "${EXT_DIR}"
-	
+	cd "${EXT_DIR}" || return
+
 	if [[ ! -d "${EXT_DIR}/${HTB_DIR}" ]]; then
 		git clone https://github.com/mlutfy/hidetopbar.git "${HTB_DIR}"
 	fi
 
-	cd "${EXT_DIR}/${HTB_DIR}"
+	cd "${EXT_DIR}/${HTB_DIR}" || return
 	make
 	gnome-extensions enable "${HTB_DIR}"
 }
